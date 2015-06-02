@@ -16,7 +16,7 @@ var requestHandler = function(request, response) {
 
   var path = require('path');
   var fs = require('fs');
-  var storagePath = path.join(__dirname, 'storage', 'test.js');
+  var storagePath = path.join(__dirname, 'storage', 'messages.json');
 
 
   // Request and Response come from node's http module.
@@ -67,17 +67,17 @@ var requestHandler = function(request, response) {
   // });
 
 
-  var append = function(savPath, obj) {
-    fs.readFile(savPath, 'utf8', function (err, data) {
+  var append = function(path, theGreatAppendableObject) {
+    fs.readFile(path, 'utf8', function (err, data) {
       if (err) {
         throw err;
       }
 
       var savedMessages = JSON.parse(data);
-      savedMessages.push(obj);
+      savedMessages.push(theGreatAppendableObject);
       var toStore = JSON.stringify(savedMessages);
 
-      fs.writeFile (savPath, toStore, function(err) {
+      fs.writeFile (path, toStore, function(err) {
           if (err) {
             throw err;
           }
