@@ -88,11 +88,20 @@ dispatcher.onPost("/send/", function( req, res) {
   res.end('Successful stored Post Data');
 });
 
-dispatcher.onGet("/", function( req, res) {
-  console.log("request = ", req);
-  append(storagePath, req);
-  res.writeHead(201, headers);
-  res.end('Successful stored Post Data');
+dispatcher.onGet("/classes/messages/", function( req, res) {
+  // console.log("request = ", req);
+
+  fs.readFile(storagePath, 'utf8', function (err, data) {
+    if( err) {
+      throw err;
+    }
+    var returnObj = {};
+    returnObj['results'] = JSON.parse(data);
+
+    console.log('Data to send: ' + returnObj);
+    res.writeHead(200, headers);
+    res.end(JSON.stringify(returnObj));
+  });
 });
 
 exports.requestHandler = requestHandler;

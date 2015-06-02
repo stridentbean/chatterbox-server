@@ -20,7 +20,7 @@ var app = {
 
       // fetch messages, and re-fetch every 1 second
       app.fetch();
-      setInterval(app.fetch, 1000);
+      //setInterval(app.fetch, 1000);
     });
   }, // end init function //
   send: function (message) {
@@ -49,7 +49,7 @@ var app = {
   fetch: function(timestamp) {
       console.log('refreshed');
       $.ajax({
-        url:"https://api.parse.com/1/classes/chatterbox",
+        url: app.server + '/classes/messages/',
         type:'GET',
         data: {
           "where": {
@@ -60,6 +60,7 @@ var app = {
         },
         contentType: 'application/json',
         success:function(data) {
+          data = JSON.parse(data);
           console.log(data);
           var results = data.results;
           for(var i=results.length-1; i > -1; i--) {
