@@ -5,7 +5,7 @@ var isInvalid = function (username, message) {
 var mostRecentMessage;
 
 var app = {
-  server: 'http://127.0.0.1:3000',
+  server: 'http://127.0.0.1:3000/classes/messages',
   init: function() {
     // assign event handlers to submit message
     $(document).on('ready', function () {
@@ -28,7 +28,7 @@ var app = {
       if(valid) {
         $.ajax({
           // always use this url
-          url: app.server + '/send/',
+          url: app.server,
           type: 'POST',
           data: JSON.stringify(message),
           contentType: 'application/jsonp',
@@ -49,7 +49,7 @@ var app = {
   fetch: function(timestamp) {
       console.log('refreshed');
       $.ajax({
-        url: app.server + '/classes/messages/',
+        url: app.server,
         type:'GET',
         data: {
           "where": {

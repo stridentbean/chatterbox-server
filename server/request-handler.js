@@ -69,7 +69,7 @@ var append = function(path, theGreatAppendableObject) {
     }
 
     var savedMessages = JSON.parse(data);
-    savedMessages.push(JSON.parse(theGreatAppendableObject));
+    savedMessages.unshift(JSON.parse(theGreatAppendableObject));
     var toStore = JSON.stringify(savedMessages);
 
     fs.writeFile (path, toStore, function(err) {
@@ -81,14 +81,14 @@ var append = function(path, theGreatAppendableObject) {
   });
 };
 
-dispatcher.onPost("/send/", function( req, res) {
+dispatcher.onPost("/classes/messages", function( req, res) {
   // console.log("request = ", req.body);
   append(storagePath, req.body);
   res.writeHead(201, headers);
   res.end('Successful stored Post Data');
 });
 
-dispatcher.onGet("/classes/messages/", function( req, res) {
+dispatcher.onGet("/classes/messages", function( req, res) {
   // console.log("request = ", req);
 
   fs.readFile(storagePath, 'utf8', function (err, data) {
