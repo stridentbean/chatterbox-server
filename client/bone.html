@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>chatterbox</title>
+    <link rel="stylesheet" href="styles/styles.css">
+
+    <!-- dependencies -->
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore-min.js"></script>
+    <script src="bower_components/backbone/backbone-min.js"></script>
+    <!-- your scripts -->
+    <script src="env/config.js"></script>
+    <script src="scripts/backboneApp.js"></script>
+  </head>
+  <body>
+    <h1>chatterbox</h1>
+    <div id="send">
+      <input class="name" placeholder="name" />
+      <input id="message" class="message" placeholder="message" />
+      <input class="submit" value="Submit" type="submit">
+    </div>
+    <div id="main">
+      <div id="chats">
+      </div>
+    </div>
+    <script>
+      $(function(){
+        // Backbone-based app initialization
+        var messages = new Messages();
+        messages.loadMsgs();
+        var formView = new FormView({el: $('#main'), collection: messages})
+        var messagesView = new MessagesView({el: $('#chats'), collection: messages});
+        setInterval( messages.loadMsgs.bind(messages), 1000 );
+        // jQuery-based app initialization
+        //app.init();
+      });
+    </script>
+  </body>
+</html>
