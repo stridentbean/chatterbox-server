@@ -11,109 +11,23 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+// Import Path, FS, Dispatcher
+var path = require('path');
+var fs = require('fs');
+var dispatcher = require('httpdispatcher');
+
+// Define path to our Storage Unit
+var storagePath = path.join(__dirname, 'storage', 'messages.json');
 
 var requestHandler = function(request, response) {
-
-  var path = require('path');
-  var fs = require('fs');
-  var storagePath = path.join(__dirname, 'storage', 'messages.json');
-
-
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
-
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
-  console.log("Serving request type " + request.method + " for url " + request.url);
-
-
-
-  var requestTypes = {}, statusCode;
-
-  requestTypes.POST = function (url) {
-    // The outgoing status.
-    statusCode = 201;
-    console.log("posting at", url);
-
-  };
-
-  requestTypes.GET = function (url) {
-    // The outgoing status.
-    statusCode = 200;
-    console.log("getting at", url);
-  };
-
-
-
-  requestTypes[request.method](request.url);
-
-
-  var data = {results:[]};
-  var testResult = null;
-
-
-  // data.results.push({
-  //   username:'stridentbean',
-  //   message: 'yo'
-  // });
-
-
-  var append = function(path, theGreatAppendableObject) {
-    fs.readFile(path, 'utf8', function (err, data) {
-      if (err) {
-        throw err;
-      }
-
-      var savedMessages = JSON.parse(data);
-      savedMessages.push(theGreatAppendableObject);
-      var toStore = JSON.stringify(savedMessages);
-
-      fs.writeFile (path, toStore, function(err) {
-          if (err) {
-            throw err;
-          }
-          console.log('complete');
-      });
-    });
-  };
-
-
-  append(storagePath,{a:1});
-
-
-
-  // See the note below about CORS headers.
-
-  var headers = defaultCorsHeaders;
-
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  // headers['Content-Type'] = "text/plain";
-  headers['Content-Type'] = "JSON";
-
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  response.end(JSON.stringify(data));
+  try {
+    //log the request on console
+    console.log("Serving request type " + request.method + " for url " + request.url);
+    //Disptach
+    dispatcher.dispatch(request, response);
+  } catch(err) {
+    console.log(err);
+  }
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -125,11 +39,47 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
+var headers = {
+  // Default CORS Headers:
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10 // Seconds.
+  "access-control-max-age": 10, // Seconds.
+  // Custom headers
+  "Content-Type": "JSON"
 };
+
+var append = function(path, theGreatAppendableObject) {
+  fs.readFile(path, 'utf8', function (err, data) {
+    if (err) {
+      throw err;
+    }
+
+    var savedMessages = JSON.parse(data);
+    savedMessages.push(theGreatAppendableObject);
+    var toStore = JSON.stringify(savedMessages);
+
+    fs.writeFile (path, toStore, function(err) {
+        if (err) {
+          throw err;
+        }
+        console.log('complete');
+    });
+  });
+};
+
+dispatcher.onPost("/send", function( req, res) {
+  console.log("request = ", req);
+  append(storagePath, req);
+  res.writeHead(201, headers);
+  res.end('Successful stored Post Data');
+});
+
+dispatcher.onGet("/", function( req, res) {
+  console.log("request = ", req);
+  append(storagePath, req);
+  res.writeHead(201, headers);
+  res.end('Successful stored Post Data');
+});
 
 exports.requestHandler = requestHandler;
