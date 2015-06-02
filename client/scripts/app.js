@@ -5,7 +5,7 @@ var isInvalid = function (username, message) {
 var mostRecentMessage;
 
 var app = {
-  server: 'https://api.parse.com/1/classes/chatterbox',
+  server: 'http://127.0.0.1:3000',
   init: function() {
     // assign event handlers to submit message
     $(document).on('ready', function () {
@@ -28,10 +28,10 @@ var app = {
       if(valid) {
         $.ajax({
           // always use this url
-          url: app.server,
+          url: app.server + '/send/',
           type: 'POST',
           data: JSON.stringify(message),
-          contentType: 'application/json',
+          contentType: 'application/jsonp',
           success: function (data) {
             console.log('chatterbox: Message sent');
             $(".message").val("");

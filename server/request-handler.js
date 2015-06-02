@@ -16,15 +16,37 @@ var path = require('path');
 var fs = require('fs');
 var dispatcher = require('httpdispatcher');
 
+// Define headers
+var headers = {
+  // Default CORS Headers:
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-headers": "content-type, accept",
+  "access-control-max-age": 10 // Seconds.
+  // Custom headers
+  // "Content-Type": "JSON"
+  //"Content-Type": "plain/text"
+};
+
 // Define path to our Storage Unit
 var storagePath = path.join(__dirname, 'storage', 'messages.json');
+
+var sendOptionsSuccess = function (req, res) {
+  console.log('opened connection stream');
+  res.writeHead(200, headers);
+  res.end();
+};
 
 var requestHandler = function(request, response) {
   try {
     //log the request on console
     console.log("Serving request type " + request.method + " for url " + request.url);
+    if(request.method === "OPTIONS") {
+      sendOptionsSuccess(request, response);
+    } else {
     //Disptach
-    dispatcher.dispatch(request, response);
+      dispatcher.dispatch(request, response);
+    }
   } catch(err) {
     console.log(err);
   }
@@ -39,15 +61,6 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var headers = {
-  // Default CORS Headers:
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10, // Seconds.
-  // Custom headers
-  "Content-Type": "JSON"
-};
 
 var append = function(path, theGreatAppendableObject) {
   fs.readFile(path, 'utf8', function (err, data) {
@@ -56,7 +69,7 @@ var append = function(path, theGreatAppendableObject) {
     }
 
     var savedMessages = JSON.parse(data);
-    savedMessages.push(theGreatAppendableObject);
+    savedMessages.push(JSON.parse(theGreatAppendableObject));
     var toStore = JSON.stringify(savedMessages);
 
     fs.writeFile (path, toStore, function(err) {
@@ -68,9 +81,9 @@ var append = function(path, theGreatAppendableObject) {
   });
 };
 
-dispatcher.onPost("/send", function( req, res) {
-  console.log("request = ", req);
-  append(storagePath, req);
+dispatcher.onPost("/send/", function( req, res) {
+  // console.log("request = ", req.body);
+  append(storagePath, req.body);
   res.writeHead(201, headers);
   res.end('Successful stored Post Data');
 });
