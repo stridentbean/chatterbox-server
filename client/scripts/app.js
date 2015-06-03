@@ -31,7 +31,7 @@ var app = {
           url: app.server,
           type: 'POST',
           data: JSON.stringify(message),
-          contentType: 'application/jsonp',
+          contentType: 'application/json',
           success: function (data) {
             console.log('chatterbox: Message sent');
             $(".message").val("");
@@ -60,7 +60,7 @@ var app = {
         },
         contentType: 'application/json',
         success:function(data) {
-          data = JSON.parse(data);
+          // data = JSON.parse(data);
           console.log(data);
           var results = data.results;
           for(var i=results.length-1; i > -1; i--) {

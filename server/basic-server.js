@@ -14,17 +14,14 @@ var port = 3000;
 // special address that always refers to localhost.
 var ip = "127.0.0.1";
 
-//TODO load from file
-var messages = [];
-
 // We use node's http module to create a server.
 //
 // The function we pass to http.createServer will be used to handle all
 // incoming requests.
 //
 // After creating the server, we will tell it to listen on the given port and IP. */
-var handlerObject = require('./request-handler.js');
-var server = http.createServer(handlerObject.requestHandler);
+var handler = require('./request-handler.js');
+var server = http.createServer(handler.requestHandler);
 console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
 

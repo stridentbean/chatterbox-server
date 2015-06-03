@@ -1,20 +1,8 @@
-/*************************************************************
-
-You should implement your request handler function in this file.
-
-requestHandler is already getting passed to http.createServer()
-in basic-server.js, but it won't work as is.
-
-You'll have to figure out a way to export this function from
-this file and include it in basic-server.js so that it actually works.
-
-*Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
-
-**************************************************************/
-// Import Path, FS, Dispatcher
+// Imports
 var path = require('path');
 var fs = require('fs');
 var dispatcher = require('httpdispatcher');
+// var url = require('url');
 
 // Define headers
 var headers = {
@@ -22,10 +10,9 @@ var headers = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10 // Seconds.
+  "access-control-max-age": 10, // Seconds.
   // Custom headers
-  // "Content-Type": "JSON"
-  //"Content-Type": "plain/text"
+  "Content-Type": "application/json"
 };
 
 // Define path to our Storage Unit
@@ -37,10 +24,12 @@ var sendOptionsSuccess = function (req, res) {
   res.end();
 };
 
+
 var requestHandler = function(request, response) {
   try {
     //log the request on console
     console.log("Serving request type " + request.method + " for url " + request.url);
+    // console.log(url.parse(request.url).query);
     if(request.method === "OPTIONS") {
       sendOptionsSuccess(request, response);
     } else {
@@ -84,12 +73,14 @@ var append = function(path, theGreatAppendableObject) {
 dispatcher.onPost("/classes/messages", function( req, res) {
   // console.log("request = ", req.body);
   append(storagePath, req.body);
+  headers["Content-Type"] = "text/plain";
   res.writeHead(201, headers);
   res.end('Successful stored Post Data');
 });
 
 dispatcher.onGet("/classes/messages", function( req, res) {
   // console.log("request = ", req);
+  headers["Content-Type"] = "application/json";
 
   fs.readFile(storagePath, 'utf8', function (err, data) {
     if( err) {
