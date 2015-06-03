@@ -2,7 +2,8 @@
 var path = require('path');
 var fs = require('fs');
 var dispatcher = require('httpdispatcher');
-// var url = require('url');
+var url = require('url');
+var _ = require('underscore');
 
 // Define headers
 var headers = {
@@ -29,7 +30,7 @@ var requestHandler = function(request, response) {
   try {
     //log the request on console
     console.log("Serving request type " + request.method + " for url " + request.url);
-    // console.log(url.parse(request.url).query);
+    console.log(url.parse(request.url));
     if(request.method === "OPTIONS") {
       sendOptionsSuccess(request, response);
     } else {
@@ -76,6 +77,38 @@ dispatcher.onPost("/classes/messages", function( req, res) {
   headers["Content-Type"] = "text/plain";
   res.writeHead(201, headers);
   res.end('Successful stored Post Data');
+});
+
+dispatcher.onGet("/classes/messages/rooms", function(req, res){
+  console.log('inside room!');
+  //gets room name from url
+  var roomName = url.parse(req.url).query.split('=')[1];
+
+  // get all messages from data store
+  fs.readFile(storagePath, 'utf8', function (err, data) {
+    if( err) {
+      throw err;
+    }
+  // consider all messages
+    var returnObj = {results: []};
+    var allMessages = JSON.parse(data);
+    _.each(allMessages, function(element) {
+      if(element.roomname === roomName) {
+        returnObj.results.push(element);
+      }
+    });
+
+    headers["Content-Type"] = "application/json";
+    res.writeHead(200, headers);
+    res.end(JSON.stringify(returnObj));
+    // check if each message has our given room
+    // if so, add it to a result array
+  // stringify results
+  // return through res.end
+
+  });
+
+
 });
 
 dispatcher.onGet("/classes/messages", function( req, res) {

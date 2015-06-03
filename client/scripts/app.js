@@ -20,7 +20,7 @@ var app = {
 
       // fetch messages, and re-fetch every 1 second
       app.fetch();
-      //setInterval(app.fetch, 1000);
+      // setInterval(app.fetch, 1000);
     });
   }, // end init function //
   send: function (message) {
@@ -51,17 +51,12 @@ var app = {
       $.ajax({
         url: app.server,
         type:'GET',
-        data: {
-          "where": {
-            "createdAt": {
-              "$gt" : mostRecentMessage
-            }
-          }
-        },
+        data: { roomname: 'room1' },
         contentType: 'application/json',
         success:function(data) {
           // data = JSON.parse(data);
           console.log(data);
+          app.clearMessages();
           var results = data.results;
           for(var i=results.length-1; i > -1; i--) {
             var message = {
